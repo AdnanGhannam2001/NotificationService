@@ -1,3 +1,4 @@
+using NotificationService.Endpoints;
 using NotificationService.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,5 +16,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.MapGroup("notifications")
+    .MapNotificationsEndpoints()
+    .RequireAuthorization();
 
 app.Run();
