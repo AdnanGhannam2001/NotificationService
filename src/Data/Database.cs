@@ -1,25 +1,22 @@
-using Dapper;
+using DbUp;
 
 namespace NotificationService.Data;
 
 public static class Database
 {
-    public async static Task CreateTablesAsync(DapperDbConnection connection)
+    public static void Init(string connectionString)
     {
-        using var db = connection.CreateConnection();
+        EnsureDatabase.For.PostgresqlDatabase(connectionString);
+        
+        var upgrader = DeployChanges.To.PostgresqlDatabase(connectionString)
+            .WithScriptsEmbeddedInAssembly(typeof(Database).Assembly)
+            .LogToConsole()
+            .Build();
 
-        await db.ExecuteAsync("""
-            CREATE TABLE IF NOT EXISTS "Notifications" (
-                "Id" VARCHAR(255) NOT NULL,
-                "UserId" VARCHAR(255) NOT NULL,
-                "IsRead" BOOLEAN DEFAULT FALSE,
-                "Content" VARCHAR(1000) NOT NULL, 
-                "Link" VARCHAR(250) NOT NULL, 
-                "CreatedAtUtc" TIMESTAMPTZ,
-                "UpdatedAtUtc" TIMESTAMPTZ,
-                PRIMARY KEY ("Id")
-            );
-        """);
+        if (upgrader.IsUpgradeRequired())
+        {
+            upgrader.PerformUpgrade();
+        }
     }
 
     public static Task SeedAsync(DapperDbConnection connection)

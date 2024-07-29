@@ -13,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer()
     .RegisterServices();
 
 var app = builder.Build();
+app.HandleCommandArguments(args);
 
 if (app.Environment.IsDevelopment())
 {
