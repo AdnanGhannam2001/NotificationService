@@ -2,10 +2,11 @@ using MassTransit;
 using NotificationService.Data.Models;
 using NotificationService.Interfaces;
 using PR2.Contracts.Events;
+using PR2.RabbitMQ.Attributes;
 
-namespace ChatService.Consumers;
+namespace NotificationService.Consumers;
 
-// [QueueConsumer]
+[QueueConsumer]
 internal sealed class NotifyEventConsumer : IConsumer<NotifyEvent>
 {
     private readonly INotificationsService _service;
@@ -20,6 +21,16 @@ internal sealed class NotifyEventConsumer : IConsumer<NotifyEvent>
     public async Task Consume(ConsumeContext<NotifyEvent> context)
     {
         var notification = new Notification(context.Message.UserId, context.Message.Content, context.Message.Link);
-        await _service.AddNotificationAsync(notification);
+
+        try
+        {
+            await _service.AddNotificationAsync(notification);
+        }
+        catch (Exception)
+        {
+            _logger.LogCritical(
+                "Something went wrong while attempting to create a notficiation for user with id: {UserId} content: {Content} and link: {Link}",
+                context.Message.UserId, context.Message.Content, context.Message.Link);
+        }
     }
 }
