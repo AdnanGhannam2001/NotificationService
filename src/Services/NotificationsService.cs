@@ -30,9 +30,10 @@ public sealed class NotificationsService : INotificationsService
         return new(items, total);
     }
 
-    public async Task<Result<Notification>> GetByIdAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<Result<Notification>> GetByIdAsync(string id, string userId, CancellationToken cancellationToken = default)
     {
-        var notification = await _db.QueryFirstOrDefaultAsync<Notification>(NotificationsQueries.GetById, new { Id = id });
+        var notification = await _db.QueryFirstOrDefaultAsync<Notification>(
+            NotificationsQueries.GetById, new { Id = id, UserId = userId });
 
         if (notification is null)
         {
@@ -52,9 +53,9 @@ public sealed class NotificationsService : INotificationsService
         await _db.QueryFirstAsync(NotificationsQueries.Add, notification);
     }
 
-    public async Task<Result<Notification>> ChangeNotificationStateAsync(string id, bool state, CancellationToken cancellationToken = default)
+    public async Task<Result<Notification>> ChangeNotificationStateAsync(string id, string userId, bool state, CancellationToken cancellationToken = default)
     {
-        var notificationResult = await GetByIdAsync(id, cancellationToken);
+        var notificationResult = await GetByIdAsync(id, userId, cancellationToken);
 
         if (!notificationResult.IsSuccess)
         {
@@ -62,21 +63,21 @@ public sealed class NotificationsService : INotificationsService
         }
 
         notificationResult.Value.Update(state);
-        await _db.QueryFirstAsync(NotificationsQueries.Update, notificationResult.Value);
+        await _db.QueryAsync(NotificationsQueries.Update, notificationResult.Value);
 
         return notificationResult;
     }
 
-    public async Task<Result<Notification>> DeleteNotificationAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<Result<Notification>> DeleteNotificationAsync(string id, string userId, CancellationToken cancellationToken = default)
     {
-        var notificationResult = await GetByIdAsync(id, cancellationToken);
+        var notificationResult = await GetByIdAsync(id, userId, cancellationToken);
 
         if (!notificationResult.IsSuccess)
         {
             return notificationResult;
         }
 
-        await _db.QueryFirstAsync(NotificationsQueries.Delete, notificationResult.Value);
+        await _db.QueryAsync(NotificationsQueries.Delete, notificationResult.Value);
 
         return notificationResult;
     }

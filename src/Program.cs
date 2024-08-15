@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer()
     .AddSwaggerGen()
+    .AddAuth()
+    .AddCors()
 #if DEBUG && !NO_RABBIT_MQ
     .AddRabbitMQ(Assembly.GetExecutingAssembly())
 #endif
@@ -22,8 +24,22 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.MapGroup("notifications")
+
+app.UseCors(x =>
+{
+    x
+        .SetIsOriginAllowed(x => true)
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials();
+});
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapGroup("api/notifications")
     .MapNotificationsEndpoints()
-    .RequireAuthorization();
+    .RequireAuthorization()
+    .WithOpenApi();
 
 app.Run();

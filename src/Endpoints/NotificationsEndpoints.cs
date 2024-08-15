@@ -48,11 +48,13 @@ internal static class NotificationsEndpoints
     }
 
     private static async Task<Results<Ok<Notification>, BadRequest<ExceptionBase[]>>> UpdateNotification(
+        HttpContext context,
         [FromServices] INotificationsService service,
         [FromRoute] string id,
         [FromQuery] bool read = true)
     {
-        var result = await service.ChangeNotificationStateAsync(id, read);
+        _ = context.TryGetUserId(out var userId);
+        var result = await service.ChangeNotificationStateAsync(id, userId, read);
 
         if (!result.IsSuccess)
         {
@@ -63,10 +65,12 @@ internal static class NotificationsEndpoints
     }
 
     private static async Task<Results<Ok<Notification>, BadRequest<ExceptionBase[]>>> DeleteNotification(
+        HttpContext context,
         [FromServices] INotificationsService service,
         [FromRoute] string id)
     {
-        var result = await service.DeleteNotificationAsync(id);
+        _ = context.TryGetUserId(out var userId);
+        var result = await service.DeleteNotificationAsync(id, userId);
 
         if (!result.IsSuccess)
         {

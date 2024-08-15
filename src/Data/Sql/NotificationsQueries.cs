@@ -14,19 +14,19 @@ public static class NotificationsQueries
     public const string GetById = $"""
         SELECT *
         FROM {Table}
-        WHERE "Id" = '@Id';
+        WHERE "Id" = @Id AND "UserId" = @UserId;
     """;
 
     public const string Count = $"""
         SELECT COUNT(*)
         FROM {Table}
-        WHERE "UserId" = '@UserId';
+        WHERE "UserId" = @UserId;
     """;
 
     public const string ListAsc = $"""
         SELECT *
         FROM {Table}
-        WHERE "UserId" = '@UserId';
+        WHERE "UserId" = @UserId
         ORDER BY "UpdatedAtUtc" ASC
         LIMIT @PageSize
         OFFSET @PageNumber * @PageSize;
@@ -35,7 +35,7 @@ public static class NotificationsQueries
     public const string ListDesc = $"""
         SELECT *
         FROM {Table}
-        WHERE "UserId" = '@UserId';
+        WHERE "UserId" = @UserId
         ORDER BY "UpdatedAtUtc" ASC
         LIMIT @PageSize
         OFFSET @PageNumber * @PageSize;
@@ -44,13 +44,12 @@ public static class NotificationsQueries
     public const string Update = $"""
         UPDATE {Table}
         SET "IsRead" = @IsRead
-        WHERE "Id" = '@Id';
+        WHERE "Id" = @Id;
     """;
 
 
     public const string Delete = $"""
         DELETE FROM {Table}
-        WHERE "Id" = '@Id'
-        RETURNING "_computed";
+        WHERE "Id" = @Id;
     """;
 }
