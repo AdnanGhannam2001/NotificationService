@@ -21,6 +21,13 @@ internal static class IServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddRealtimeConnection(this IServiceCollection services)
+    {
+        services.AddSignalR();
+
+        return services;
+    }
+
     public static IServiceCollection RegisterServices(this IServiceCollection services)
     {
         return services.AddScoped<DapperDbConnection>()

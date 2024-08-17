@@ -1,5 +1,7 @@
 using MassTransit;
+using Microsoft.AspNetCore.SignalR;
 using NotificationService.Data.Models;
+using NotificationService.Hubs;
 using NotificationService.Interfaces;
 using PR2.Contracts.Events;
 using PR2.RabbitMQ.Attributes;
@@ -10,11 +12,17 @@ namespace NotificationService.Consumers;
 internal sealed class NotifyEventConsumer : IConsumer<NotifyEvent>
 {
     private readonly INotificationsService _service;
+    private readonly IHubContext<NotificationHub, INotificationClient> _hub;
+
     private readonly ILogger<NotifyEventConsumer> _logger;
 
-    public NotifyEventConsumer(INotificationsService service, ILogger<NotifyEventConsumer> logger)
+    public NotifyEventConsumer(INotificationsService service,
+        IHubContext<NotificationHub, INotificationClient> hub,
+        ILogger<NotifyEventConsumer> logger)
     {
         _service = service;
+        _hub = hub;
+
         _logger = logger;
     }
 
@@ -25,6 +33,7 @@ internal sealed class NotifyEventConsumer : IConsumer<NotifyEvent>
         try
         {
             await _service.AddNotificationAsync(notification);
+            await _hub.Clients.Group(notification.UserId).Notify(notification);
         }
         catch (Exception)
         {

@@ -36,7 +36,7 @@ public static class NotificationsQueries
         SELECT *
         FROM {Table}
         WHERE "UserId" = @UserId
-        ORDER BY "UpdatedAtUtc" ASC
+        ORDER BY "UpdatedAtUtc" DESC
         LIMIT @PageSize
         OFFSET @PageNumber * @PageSize;
     """;

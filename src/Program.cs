@@ -1,6 +1,7 @@
 using System.Reflection;
 using NotificationService.Endpoints;
 using NotificationService.Extensions;
+using NotificationService.Hubs;
 using PR2.RabbitMQ.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer()
     .AddSwaggerGen()
     .AddAuth()
+    .AddRealtimeConnection()
     .AddCors()
 #if DEBUG && !NO_RABBIT_MQ
     .AddRabbitMQ(Assembly.GetExecutingAssembly())
@@ -36,6 +38,8 @@ app.UseCors(x =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<NotificationHub>("/websocket/notification");
 
 app.MapGroup("api/notifications")
     .MapNotificationsEndpoints()
