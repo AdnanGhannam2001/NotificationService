@@ -21,6 +21,6 @@ public static class Database
 
     public static Task SeedAsync(DapperDbConnection connection)
     {
-        throw new NotImplementedException();
+        return Task.CompletedTask;
     }
 }
