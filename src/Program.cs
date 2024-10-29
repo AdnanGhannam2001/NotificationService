@@ -1,4 +1,5 @@
 using System.Reflection;
+using NotificationService.Constants;
 using NotificationService.Endpoints;
 using NotificationService.Extensions;
 using NotificationService.Hubs;
@@ -6,15 +7,22 @@ using PR2.RabbitMQ.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointsApiExplorer()
-    .AddSwaggerGen()
-    .AddAuth()
-    .AddRealtimeConnection()
-    .AddCors()
-#if DEBUG && !NO_RABBIT_MQ
-    .AddRabbitMQ(Assembly.GetExecutingAssembly())
+{
+    var rmqConfig = builder.Configuration.GetSection(CommonConstants.RabbitMqSettings);
+
+    builder.Services.AddEndpointsApiExplorer()
+        .AddSwaggerGen()
+        .AddAuth()
+        .AddRealtimeConnection()
+        .AddCors()
+#if !NO_RABBIT_MQ
+        .AddRabbitMQ(Assembly.GetExecutingAssembly(),
+            rmqConfig["Host"]!,
+            rmqConfig["Username"]!,
+            rmqConfig["Password"]!)
 #endif
-    .RegisterServices();
+        .RegisterServices();
+}
 
 var app = builder.Build();
 app.HandleCommandArguments(args);
