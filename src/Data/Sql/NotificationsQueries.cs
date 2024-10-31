@@ -52,4 +52,6 @@ public static class NotificationsQueries
         DELETE FROM {Table}
         WHERE "Id" = @Id;
     """;
+
+    public const string Clear = $"DELETE FROM {Table};";
 }

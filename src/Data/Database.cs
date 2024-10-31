@@ -1,4 +1,6 @@
+using Dapper;
 using DbUp;
+using NotificationService.Data.Sql;
 
 namespace NotificationService.Data;
 
@@ -17,6 +19,12 @@ public static class Database
         {
             upgrader.PerformUpgrade();
         }
+    }
+
+    public static async Task ClearAsync(DapperDbConnection connection)
+    {
+        using var db = connection.CreateConnection();
+        await db.QueryAsync(NotificationsQueries.Clear);
     }
 
     public static Task SeedAsync(DapperDbConnection connection)
